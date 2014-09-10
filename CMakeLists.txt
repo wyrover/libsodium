@@ -342,6 +342,8 @@ endif()
 
 if(MSVC)
 	list(APPEND definitions_private
+		"UNICODE"
+		"_UNICODE"
 		"inline=__inline"
 		"_CRT_SECURE_NO_WARNINGS"
 		)
