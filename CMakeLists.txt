@@ -23,7 +23,7 @@ set(CPACK_BINARY_TGZ "ON")
 
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 option(BUILD_LIBSODIUM_TESTS "Build libsodium tests" ON)
-option(BUILD_LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib)" OFF)
+option(BUILD_LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib)" ON)
 
 if(BUILD_LIBSODIUM_OUTPUT_SIMPLE)
 	if(MSVC)
@@ -231,8 +231,6 @@ list(APPEND src
 	"src/libsodium/crypto_stream/aes128ctr/portable/stream_aes128ctr.c"
 	"src/libsodium/crypto_stream/aes128ctr/portable/xor_afternm_aes128ctr.c"
 	"src/libsodium/crypto_stream/aes128ctr/stream_aes128ctr_api.c"
-	"src/libsodium/crypto_stream/aes256estream/hongjun/aes256-ctr.c"
-	"src/libsodium/crypto_stream/aes256estream/stream_aes256estream_api.c"
 	"src/libsodium/crypto_stream/salsa2012/ref/stream_salsa2012.c"
 	"src/libsodium/crypto_stream/salsa2012/ref/xor_salsa2012.c"
 	"src/libsodium/crypto_stream/salsa2012/stream_salsa2012_api.c"
@@ -241,7 +239,6 @@ list(APPEND src
 	"src/libsodium/crypto_stream/salsa208/stream_salsa208_api.c"
 	"src/libsodium/crypto_stream/salsa20/ref/stream_salsa20_ref.c"
 	"src/libsodium/crypto_stream/salsa20/ref/xor_salsa20_ref.c"
-	"src/libsodium/sodium/compat.c"
 	)
 
 list(APPEND public_hdrs
@@ -276,7 +273,6 @@ list(APPEND public_hdrs
 	"src/libsodium/include/sodium/crypto_sign_ed25519.h"
 	"src/libsodium/include/sodium/crypto_stream.h"
 	"src/libsodium/include/sodium/crypto_stream_aes128ctr.h"
-	"src/libsodium/include/sodium/crypto_stream_aes256estream.h"
 	"src/libsodium/include/sodium/crypto_stream_chacha20.h"
 	"src/libsodium/include/sodium/crypto_stream_salsa20.h"
 	"src/libsodium/include/sodium/crypto_stream_salsa2012.h"
@@ -478,8 +474,6 @@ if(BUILD_LIBSODIUM_TESTS)
 	buildtest(stream2 "test/default/stream2.c")
 	buildtest(stream3 "test/default/stream3.c")
 	buildtest(stream4 "test/default/stream4.c")
-	buildtest(stream5 "test/default/stream5.c")
-	buildtest(stream6 "test/default/stream6.c")
 	buildtest(verify1 "test/default/verify1.c")
 endif()
 
