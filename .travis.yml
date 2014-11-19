@@ -7,7 +7,6 @@ os:
 compiler:
  - clang
  - gcc
- - g++
 
 before_script:
  - cmake -DBUILD_LIBSODIUM_TESTS=ON -DCMAKE_BUILD_TYPE=Release .
