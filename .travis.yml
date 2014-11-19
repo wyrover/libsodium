@@ -10,8 +10,9 @@ compiler:
  - g++
 
 before_script:
- - cmake -DBUILD_TESTS=ON .
+ - cmake -DBUILD_LIBSODIUM_TESTS=ON -DCMAKE_BUILD_TYPE=Release .
 
 script:
- - cmake --build . && ctest
+ - cmake --build . --config=Release
+ - ctest
 
