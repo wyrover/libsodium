@@ -22,7 +22,7 @@ set(CPACK_BINARY_TGZ "ON")
 #SET(CPACK_INSTALL_CMAKE_PROJECTS "ALL")
 
 option(BUILD_SHARED_LIBS "Build shared library" ON)
-option(BUILD_LIBSODIUM_TESTS "Build libsodium tests" ON)
+option(BUILD_LIBSODIUM_TESTS "Build libsodium tests" OFF)
 option(BUILD_LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib)" ON)
 
 if(BUILD_LIBSODIUM_OUTPUT_SIMPLE)
