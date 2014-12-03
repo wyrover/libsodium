@@ -286,7 +286,7 @@ list(APPEND public_hdrs
 	"src/libsodium/include/sodium/randombytes_sysrandom.h"
 	"src/libsodium/include/sodium/runtime.h"
 	"src/libsodium/include/sodium/utils.h"
-	"${CMAKE_BINARY_DIR}/sodium/version.h"
+	"${CMAKE_BINARY_DIR}/include/sodium/version.h"
 	)
 
 configure_file("src/libsodium/include/sodium/version.h.in"
@@ -324,6 +324,7 @@ list(APPEND public_include_dirs
 
 list(APPEND include_dirs
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include/sodium"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include"
 	"${CMAKE_BINARY_DIR}/include/sodium")
 
 if(NOT TEST_ENDIAN)
@@ -394,7 +395,7 @@ install(DIRECTORY "src/libsodium/include/sodium"
 install(FILES "src/libsodium/include/sodium.h"
 	DESTINATION "include" COMPONENT dev)
 
-install(FILES "${CMAKE_BINARY_DIR}/sodium/version.h"
+install(FILES "${CMAKE_BINARY_DIR}/include/sodium/version.h"
 	DESTINATION "include/sodium" COMPONENT dev)
 
 ### TESTS
