@@ -290,7 +290,7 @@ list(APPEND public_hdrs
 	)
 
 configure_file("src/libsodium/include/sodium/version.h.in"
-	"${CMAKE_BINARY_DIR}/sodium/version.h")
+	"${CMAKE_BINARY_DIR}/include/sodium/version.h")
 
 list(APPEND hdr
 	"")
@@ -319,11 +319,12 @@ if(NOT HAVE_TI_MODE)
 endif()
 
 list(APPEND public_include_dirs
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include")
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include"
+	"${CMAKE_BINARY_DIR}/include")
 
 list(APPEND include_dirs
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include/sodium"
-	"${CMAKE_BINARY_DIR}/sodium")
+	"${CMAKE_BINARY_DIR}/include/sodium")
 
 if(NOT TEST_ENDIAN)
 	list(APPEND definitions_private
