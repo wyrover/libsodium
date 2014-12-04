@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.4)
 project("libsodium")
 
 include (TestBigEndian)
+include (CheckCCompilerFlag)
 test_big_endian(TEST_ENDIAN)
 
 set(SODIUM_LIBRARY_VERSION_MAJOR "7")
@@ -42,6 +43,17 @@ if(BUILD_LIBSODIUM_OUTPUT_SIMPLE)
 
 	set(test_output_dir "${CMAKE_BINARY_DIR}/bin")
 else()
+endif()
+
+CHECK_C_COMPILER_FLAG("no-strict-overflow" CC_OVERFLOW_FLAG)
+CHECK_C_COMPILER_FLAG("wrapv" CC_WRAP_V)
+
+if (CC_OVERFLOW_FLAG)
+	list(APPEND CMAKE_C_FLAGS "-fno-strict-overflow")
+else()
+	if (CC_WRAP_V)
+		list(APPEND CMAKE_C_FLAGS "-fwrapv")
+	endif()
 endif()
 
 list(APPEND src
