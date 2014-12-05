@@ -9,6 +9,7 @@ compiler:
  - gcc
 
 before_script:
+ - rm CMakeCache.txt
  - cmake -DBUILD_LIBSODIUM_TESTS=ON -DCMAKE_BUILD_TYPE=Release .
 
 script:
