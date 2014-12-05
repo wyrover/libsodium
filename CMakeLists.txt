@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 2.8.4)
 
 project("libsodium")
 
-include (TestBigEndian)
-include (CheckCCompilerFlag)
+include(TestBigEndian)
+include(CheckCCompilerFlag)
+include(CheckIncludeFiles)
+include(CheckFunctionExists)
+
 test_big_endian(TEST_ENDIAN)
 
 set(SODIUM_LIBRARY_VERSION_MAJOR "7")
@@ -45,8 +48,22 @@ if(BUILD_LIBSODIUM_OUTPUT_SIMPLE)
 else()
 endif()
 
+function(CheckFuncAndDefine func_name)
+	string(TOUPPER "${func_name}" HAVE_PART_VARIABLE_NAME)
+	CHECK_FUNCTION_EXISTS(${func_name} ${func_name}_EXISTS)
+	if (${func_name}_EXISTS)
+		list(APPEND definitions_private "HAVE_${HAVE_PART_VARIABLE_NAME}")
+	endif()
+endfunction()
+
 CHECK_C_COMPILER_FLAG("no-strict-overflow" CC_OVERFLOW_FLAG)
 CHECK_C_COMPILER_FLAG("wrapv" CC_WRAP_V)
+CheckFuncAndDefine(mmap)
+CheckFuncAndDefine(madvise)
+CheckFuncAndDefine(mprotect)
+CheckFuncAndDefine(explicit_bzero)
+CheckFuncAndDefine(arc4random)
+CheckFuncAndDefine(arc4random_buf)
 
 if (CC_OVERFLOW_FLAG)
 	list(APPEND CMAKE_C_FLAGS "-fno-strict-overflow")
