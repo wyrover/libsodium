@@ -64,6 +64,9 @@ CheckFuncAndDefine(mprotect)
 CheckFuncAndDefine(explicit_bzero)
 CheckFuncAndDefine(arc4random)
 CheckFuncAndDefine(arc4random_buf)
+CheckFuncAndDefine(posix_memalign)
+
+message(STATUS "final definitions ${definitions_private}")
 
 if (CC_OVERFLOW_FLAG)
 	list(APPEND CMAKE_C_FLAGS "-fno-strict-overflow")
