@@ -67,10 +67,10 @@ CheckFuncAndDefine(arc4random_buf)
 CheckFuncAndDefine(posix_memalign)
 
 if (CC_OVERFLOW_FLAG)
-	list(APPEND CMAKE_C_FLAGS "-fno-strict-overflow")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-overflow")
 else()
 	if (CC_WRAP_V)
-		list(APPEND CMAKE_C_FLAGS "-fwrapv")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fwrapv")
 	endif()
 endif()
 
