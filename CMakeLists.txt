@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.4)
 
 project("libsodium")
 
+option(LIBSODIUM_BUILD_SHARED_LIB "Build shared library" ON)
+option(LIBSODIUM_BUILD_TESTS "Build libsodium tests" OFF)
+option(LIBSODIUM_INSTALL_TARGET "Should generate an install target for the library" ON)
+option(LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib/include)" ON)
+
 include(TestBigEndian)
 include(CheckCCompilerFlag)
 include(CheckIncludeFiles)
@@ -25,11 +30,7 @@ set(CPACK_BINARY_NSIS "OFF")
 set(CPACK_BINARY_TGZ "ON")
 #SET(CPACK_INSTALL_CMAKE_PROJECTS "ALL")
 
-option(BUILD_SHARED_LIBS "Build shared library" ON)
-option(BUILD_LIBSODIUM_TESTS "Build libsodium tests" OFF)
-option(BUILD_LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib)" ON)
-
-if(BUILD_LIBSODIUM_OUTPUT_SIMPLE)
+if(LIBSODIUM_OUTPUT_SIMPLE)
 	if(MSVC)
 		foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 			string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
@@ -377,7 +378,7 @@ if(MSVC)
 		)
 endif()
 
-if(BUILD_SHARED_LIBS)
+if(LIBSODIUM_BUILD_SHARED_LIB)
 	list(APPEND definitions_private
 		"DLL_EXPORT")
 	set(libtype "SHARED")
@@ -387,7 +388,7 @@ else()
 	set(libtype "STATIC")
 endif()
 
-if(WIN32 AND BUILD_SHARED_LIBS)
+if(WIN32 AND LIBSODIUM_BUILD_SHARED_LIB)
 	configure_file("builds/msvc/resource.rc.in"
 		"${CMAKE_BINARY_DIR}/resource.rc" @ONLY WIN32)
 
@@ -409,27 +410,29 @@ set_target_properties(libsodium PROPERTIES
 	SOVERSION ${SODIUM_LIBRARY_VERSION_MAJOR}
 	)
 
-install(TARGETS libsodium
-	LIBRARY DESTINATION lib COMPONENT lib
-	ARCHIVE DESTINATION lib COMPONENT lib
-	RUNTIME DESTINATION bin COMPONENT bin)
+if(LIBSODIUM_GEN_INSTALL_TARGET)
+	install(TARGETS libsodium
+		LIBRARY DESTINATION lib COMPONENT lib
+		ARCHIVE DESTINATION lib COMPONENT lib
+		RUNTIME DESTINATION bin COMPONENT bin)
 
-# cannot use PUBLIC_HEADER property on libsodium target to install headers
-# as we need to preserve the directory structure
-install(DIRECTORY "src/libsodium/include/sodium"
-	DESTINATION "include" COMPONENT dev
-	FILES_MATCHING
-	PATTERN "*.h"
-	PATTERN "*.h.in" EXCLUDE)
+	# cannot use PUBLIC_HEADER property on libsodium target to install headers
+	# as we need to preserve the directory structure
+	install(DIRECTORY "src/libsodium/include/sodium"
+		DESTINATION "include" COMPONENT dev
+		FILES_MATCHING
+		PATTERN "*.h"
+		PATTERN "*.h.in" EXCLUDE)
 
-install(FILES "src/libsodium/include/sodium.h"
-	DESTINATION "include" COMPONENT dev)
+	install(FILES "src/libsodium/include/sodium.h"
+		DESTINATION "include" COMPONENT dev)
 
-install(FILES "${CMAKE_BINARY_DIR}/include/sodium/version.h"
-	DESTINATION "include/sodium" COMPONENT dev)
+	install(FILES "${CMAKE_BINARY_DIR}/include/sodium/version.h"
+		DESTINATION "include/sodium" COMPONENT dev)
+endif()
 
 ### TESTS
-if(BUILD_LIBSODIUM_TESTS)
+if(LIBSODIUM_BUILD_TESTS)
 	enable_testing()
 
 	if(MSVC)
