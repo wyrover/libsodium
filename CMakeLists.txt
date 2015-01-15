@@ -1,33 +1,37 @@
 cmake_minimum_required(VERSION 2.8.4)
 
-project("libsodium")
+project(sodium)
 
 option(LIBSODIUM_BUILD_SHARED_LIB "Build shared library" ON)
 option(LIBSODIUM_BUILD_TESTS "Build libsodium tests" OFF)
-option(LIBSODIUM_INSTALL_TARGET "Should generate an install target for the library" ON)
+option(LIBSODIUM_GEN_INSTALL_TARGET "Should generate an install target for the library" ON)
 option(LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib/include)" ON)
 
 include(TestBigEndian)
 include(CheckCCompilerFlag)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
+include(CMakePackageConfigHelpers)
 
 test_big_endian(TEST_ENDIAN)
 
-set(SODIUM_LIBRARY_VERSION_MAJOR "7")
+set(SODIUM_LIBRARY_VERSION_MAJOR "1")
 set(SODIUM_LIBRARY_VERSION_MINOR "0")
-set(SODIUM_LIBRARY_VERSION_PATCH "0")
+set(SODIUM_LIBRARY_VERSION_PATCH "1")
 set(VERSION "${SODIUM_LIBRARY_VERSION_MAJOR}.${SODIUM_LIBRARY_VERSION_MINOR}.${SODIUM_LIBRARY_VERSION_PATCH}")
-
+set(PROJECT_VERSION "${VERSION}")
+ 
+set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "libsodium")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.19)")
 set(CPACK_PACKAGE_VERSION_MAJOR "${SODIUM_LIBRARY_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${SODIUM_LIBRARY_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${SODIUM_LIBRARY_VERSION_PATCH}")
 #set(CPACK_PACKAGE_DIRECTORY "cpack_dir")
-set(CPACK_PACKAGE_VENDOR "mynamehere")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "mynamehere")
-set(CPACK_BINARY_NSIS "OFF")
-set(CPACK_BINARY_TGZ "ON")
+set(CPACK_PACKAGE_VENDOR "Frank Denis")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "@ksophocleous")
+#set(CPACK_BINARY_NSIS "OFF")
+#set(CPACK_BINARY_TGZ "ON")
 #SET(CPACK_INSTALL_CMAKE_PROJECTS "ALL")
 
 if(LIBSODIUM_OUTPUT_SIMPLE)
@@ -350,8 +354,10 @@ if(NOT HAVE_TI_MODE)
 endif()
 
 list(APPEND public_include_dirs
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include"
-	"${CMAKE_BINARY_DIR}/include")
+	#"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include"
+	#"src/libsodium/include"
+	#"${CMAKE_BINARY_DIR}/include"
+	)
 
 list(APPEND include_dirs
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include/sodium"
@@ -400,21 +406,29 @@ if(WIN32 AND LIBSODIUM_BUILD_SHARED_LIB)
 		"${CMAKE_BINARY_DIR}/resource.rc")
 endif()
 
+list(APPEND interface_include_directories 
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include>"
+	"$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>"
+	"$<INSTALL_INTERFACE:include/sodium>"
+	)
+
 add_library(libsodium ${libtype} ${src} ${hdr} ${public_hdrs})
 set_target_properties(libsodium PROPERTIES
 	INCLUDE_DIRECTORIES "${include_dirs}"
 	COMPILE_DEFINITIONS "${definitions_public};${definitions_private}"
-	INTERFACE_INCLUDE_DIRECTORIES "${public_include_dirs}"
+	INTERFACE_INCLUDE_DIRECTORIES "${interface_include_directories}"
+#"${public_include_dirs}"
 	INTERFACE_COMPILE_DEFINITIONS "${definitions_public}"
 	PREFIX ""
 	SOVERSION ${SODIUM_LIBRARY_VERSION_MAJOR}
 	)
 
 if(LIBSODIUM_GEN_INSTALL_TARGET)
-	install(TARGETS libsodium
+	install(TARGETS libsodium EXPORT libsodium-targets
 		LIBRARY DESTINATION lib COMPONENT lib
 		ARCHIVE DESTINATION lib COMPONENT lib
-		RUNTIME DESTINATION bin COMPONENT bin)
+		RUNTIME DESTINATION bin COMPONENT bin
+		)
 
 	# cannot use PUBLIC_HEADER property on libsodium target to install headers
 	# as we need to preserve the directory structure
@@ -429,6 +443,42 @@ if(LIBSODIUM_GEN_INSTALL_TARGET)
 
 	install(FILES "${CMAKE_BINARY_DIR}/include/sodium/version.h"
 		DESTINATION "include/sodium" COMPONENT dev)
+
+	export(PACKAGE sodium)
+
+	install(EXPORT libsodium-targets DESTINATION lib/cmake)
+
+	write_basic_package_version_file(
+	 	sodiumConfigVersion.cmake
+	 	COMPATIBILITY SameMajorVersion
+	 	)
+
+	set(INCLUDE_INSTALL_DIR include/)
+	set(LIB_INSTALL_DIR lib/)
+	configure_package_config_file(cmake/sodiumConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/sodiumConfig.cmake
+		INSTALL_DESTINATION cmake/
+		PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR)
+	
+	export(EXPORT libsodium-targets
+		FILE "${CMAKE_CURRENT_BINARY_DIR}/sodiumTargets.cmake"
+		)
+
+	# set(ConfigPackageLocation lib/cmake/Sodium)
+	# install(EXPORT libsodium-targets
+	# 	FILE SodiumTargets.cmake
+	# 	DESTINATION ${ConfigPackageLocation}
+	# 	)
+
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sodiumConfig.cmake
+		DESTINATION lib/cmake
+		)
+	# 		cmake/ClimbingStatsConfig.cmake
+	# 		"${CMAKE_CURRENT_BINARY_DIR}/ClimbingStats/ClimbingStatsConfigVersion.cmake"
+	# 		DESTINATION
+	# 		${ConfigPackageLocation}
+	# 		COMPONENT
+	# 		Devel
+	# 		)
 endif()
 
 ### TESTS
