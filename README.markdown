@@ -1,7 +1,7 @@
 ![libsodium](https://raw.github.com/jedisct1/libsodium/master/logo.png)
 ============
 
-https://travis-ci.org/ksophocleous/libsodium.svg?branch=master
+![build travis image](https://travis-ci.org/ksophocleous/libsodium.svg?branch=master)
 
 Sodium is a new, easy-to-use software library for encryption,
 decryption, signatures, password hashing and more.
