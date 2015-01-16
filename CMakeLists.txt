@@ -4,7 +4,7 @@ project("libsodium")
 
 option(LIBSODIUM_BUILD_SHARED_LIB "Build shared library" ON)
 option(LIBSODIUM_BUILD_TESTS "Build libsodium tests" OFF)
-option(LIBSODIUM_INSTALL_TARGET "Should generate an install target for the library" ON)
+option(LIBSODIUM_GEN_INSTALL_TARGET "Should generate an install target for the library" ON)
 option(LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib/include)" ON)
 
 include(TestBigEndian)
