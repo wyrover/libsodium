@@ -389,10 +389,10 @@ else()
 endif()
 
 if(WIN32 AND LIBSODIUM_BUILD_SHARED_LIB)
-	configure_file("builds/msvc/resource.rc.in"
+	configure_file("msvc/resource.rc.in"
 		"${CMAKE_BINARY_DIR}/resource.rc" @ONLY WIN32)
 
-	configure_file("builds/msvc/resource.h"
+	configure_file("msvc/resource.h"
 		"${CMAKE_BINARY_DIR}/resource.h" COPYONLY @ONLY WIN32)
 
 	# append resource to DLL
