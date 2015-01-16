@@ -380,7 +380,7 @@ endif()
 
 if(LIBSODIUM_BUILD_SHARED_LIB)
 	list(APPEND definitions_private
-		"DLL_EXPORT")
+		"SODIUM_DLL_EXPORT")
 	set(libtype "SHARED")
 else()
 	list(APPEND definitions_public
