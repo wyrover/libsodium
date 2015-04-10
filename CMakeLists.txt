@@ -4,7 +4,7 @@ project("libsodium")
 
 option(LIBSODIUM_BUILD_SHARED_LIB "Build shared library" ON)
 option(LIBSODIUM_BUILD_TESTS "Build libsodium tests" OFF)
-option(LIBSODIUM_GEN_INSTALL_TARGET "Should generate an install target for the library" ON)
+option(LIBSODIUM_GEN_INSTALL_TARGETS "Should generate an install target for the library" ON)
 option(LIBSODIUM_OUTPUT_SIMPLE "Simple output paths (outputs placed in bin/lib/include)" ON)
 
 include(TestBigEndian)
@@ -12,7 +12,7 @@ include(CheckCCompilerFlag)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
-test_big_endian(TEST_ENDIAN)
+test_big_endian(TEST_BIG_ENDIAN)
 
 set(SODIUM_LIBRARY_VERSION_MAJOR "1")
 set(SODIUM_LIBRARY_VERSION_MINOR "0")
@@ -358,7 +358,7 @@ list(APPEND include_dirs
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/libsodium/include"
 	"${CMAKE_BINARY_DIR}/include/sodium")
 
-if(NOT TEST_ENDIAN)
+if(NOT TEST_BIG_ENDIAN)
 	list(APPEND definitions_private
 		"NATIVE_LITTLE_ENDIAN"
 		)
@@ -378,16 +378,6 @@ if(MSVC)
 		)
 endif()
 
-if(LIBSODIUM_BUILD_SHARED_LIB)
-	list(APPEND definitions_private
-		"SODIUM_DLL_EXPORT")
-	set(libtype "SHARED")
-else()
-	list(APPEND definitions_public
-		"SODIUM_STATIC")
-	set(libtype "STATIC")
-endif()
-
 if(WIN32 AND LIBSODIUM_BUILD_SHARED_LIB)
 	configure_file("src/msvc/resource.rc.in"
 		"${CMAKE_BINARY_DIR}/resource.rc" @ONLY WIN32)
@@ -396,26 +386,46 @@ if(WIN32 AND LIBSODIUM_BUILD_SHARED_LIB)
 		"${CMAKE_BINARY_DIR}/resource.h" COPYONLY @ONLY WIN32)
 
 	# append resource to DLL
-	list(APPEND src
+	list(APPEND rc
 		"${CMAKE_BINARY_DIR}/resource.rc")
 endif()
 
-add_library(libsodium ${libtype} ${src} ${hdr} ${public_hdrs})
-set_target_properties(libsodium PROPERTIES
-	INCLUDE_DIRECTORIES "${include_dirs}"
-	COMPILE_DEFINITIONS "${definitions_public};${definitions_private}"
-	INTERFACE_INCLUDE_DIRECTORIES "${public_include_dirs}"
-	INTERFACE_COMPILE_DEFINITIONS "${definitions_public}"
-	PREFIX ""
-	SOVERSION ${SODIUM_LIBRARY_VERSION_MAJOR}
-	)
+## -- SHARED LIBRARY
+if(LIBSODIUM_BUILD_SHARED_LIB)
+	add_library(libsodium SHARED ${src} ${rc} ${hdr} ${public_hdrs})
+	set_target_properties(libsodium PROPERTIES
+		INCLUDE_DIRECTORIES "${include_dirs}"
+		COMPILE_DEFINITIONS "SODIUM_DLL_EXPORT;${definitions_private}"
+		INTERFACE_INCLUDE_DIRECTORIES "${public_include_dirs}"
+		PREFIX ""
+		IMPORT_PREFIX ""
+		IMPORT_SUFFIX "_implib${CMAKE_IMPORT_LIBRARY_SUFFIX}"
+		SOVERSION ${SODIUM_LIBRARY_VERSION_MAJOR})
+	if(LIBSODIUM_GEN_INSTALL_TARGET)
+		install(TARGETS libsodium
+			LIBRARY DESTINATION lib COMPONENT lib
+			ARCHIVE DESTINATION lib COMPONENT lib
+			RUNTIME DESTINATION bin COMPONENT bin)
+	endif()
+endif()
 
+## -- STATIC LIBRARY
+add_library(libsodium_static STATIC ${src} ${hdr} ${public_hdrs})
+set_target_properties(libsodium_static PROPERTIES
+	INCLUDE_DIRECTORIES "${include_dirs}"
+	COMPILE_DEFINITIONS "SODIUM_STATIC;${definitions_private}"
+	INTERFACE_INCLUDE_DIRECTORIES "${public_include_dirs}"
+	INTERFACE_COMPILE_DEFINITIONS "SODIUM_STATIC"
+	PREFIX ""
+	SOVERSION ${SODIUM_LIBRARY_VERSION_MAJOR})
 if(LIBSODIUM_GEN_INSTALL_TARGET)
-	install(TARGETS libsodium
+	install(TARGETS libsodium_static
 		LIBRARY DESTINATION lib COMPONENT lib
 		ARCHIVE DESTINATION lib COMPONENT lib
 		RUNTIME DESTINATION bin COMPONENT bin)
-
+endif()
+	
+if(LIBSODIUM_GEN_INSTALL_TARGET)
 	# cannot use PUBLIC_HEADER property on libsodium target to install headers
 	# as we need to preserve the directory structure
 	install(DIRECTORY "src/libsodium/include/sodium"
